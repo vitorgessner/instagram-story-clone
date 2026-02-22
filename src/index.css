@@ -16,7 +16,7 @@
   }
 
   nav {
-    @apply overflow-hidden h-[96px]
+    @apply overflow-hidden h-[112px]
   }
   * {
     @apply border-border outline-ring/50;
@@ -36,6 +36,10 @@
   input {
     @apply border-2 border-zinc-700 px-2 py-1 focus:outline-indigo-200 focus:outline-2 max-w-40 sm:max-w-xs
   }
+
+  button {
+    @apply cursor-pointer
+  }
 }
 
 @layer components {
@@ -52,15 +56,15 @@
   }
 
   .storiesList {
-    @apply max-w-120 border-2 border-zinc-700 h-full flex flex-col bg-indigo-100 relative max-h-220
+    @apply max-w-120 border-2 border-zinc-700 h-full flex flex-col bg-indigo-100 relative max-h-220 min-w-120
   }
 
   .miniStoriesList {
-    @apply max-w-60 border-2 border-zinc-700 h-[50%] h-sm:h-[60%] h-lg:h-[50%] flex flex-col bg-indigo-100 relative min-h-75.25 max-h-115
+    @apply max-w-60 min-w-60 border-2 border-zinc-700 h-[50%] h-sm:h-[60%] h-lg:h-[50%] flex flex-col bg-indigo-100 relative min-h-75.25 max-h-115 cursor-pointer
   }
 
   .profile {
-    @apply flex justify-between p-2
+    @apply flex justify-between p-2 items-center
   }
 
   .progress {
@@ -68,15 +72,15 @@
   }
 
   .progressTick {
-    @apply w-full h-0.5 bg-zinc-400
+    @apply w-full h-0.5 flex gap-1
   }
 
   .story {
-    @apply flex-1
+    @apply flex-1 overflow-hidden
   }
 
   .storiesView {
-    @apply h-screen p-5 flex justify-center gap-2 items-center
+    @apply h-screen p-5 flex justify-center gap-4 items-center
   }
 
   .mainPage {
@@ -89,25 +93,55 @@
   }
 
   .inputContainer {
-    @apply flex justify-between text-right items-center
+    @apply text-right items-center
   }
 }
 
 @layer utilities {
   .profilePicture {
-    @apply max-h-16 min-h-16 max-w-16 min-w-16 rounded-full border-2 border-zinc-700 object-cover
+    @apply max-h-16 min-h-16 max-w-16 min-w-16 rounded-full border-2 bg-linear-120 from-zinc-200 to-zinc-800 p-1 object-cover border-none
   }
 
+  .profilePicture.notSeen {
+    @apply bg-linear-120 from-indigo-200 to-indigo-800 p-1 border-none
+  }
+  /* outline-2 outline-red-500 outline-offset-2 */
   .profilePictureMini {
     @apply size-10 rounded-full border-2 border-zinc-700 object-cover
   }
 
   .storyImage {
-    @apply h-full relative object-cover
+    @apply h-full relative object-cover block w-full
   }
 
   .inside {
     @apply absolute z-10 left-20 top-24 h-sm:top-32 h-md:top-42
+  }
+
+  .progressBar {
+    @apply absolute h-0.5 pl-1 bg-white left-0
+  }
+
+  .progressLine {
+    @apply bg-zinc-400 w-full h-0.5 relative
+  }
+
+  .progressBar.active {
+    padding-left: 100%;
+    animation: slideIn 15s linear forwards;
+  }
+
+  .storyNotFound {
+    @apply flex items-center h-full pb-18 justify-center text-white font-bold
+  }
+}
+
+@keyframes slideIn {
+  from {
+    padding-left: 4px;
+  }
+  to {
+    padding-left: 100%;
   }
 }
 

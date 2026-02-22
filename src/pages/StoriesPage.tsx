@@ -1,77 +1,68 @@
-import { Play, ArrowLeftCircle, ArrowRightCircle, ArrowBigLeft } from "lucide-react"
+import { ArrowLeftCircle, ArrowRightCircle, ArrowBigLeft } from "lucide-react"
 import { Link } from "react-router"
+import { ProfileStories } from "../components/ProfileStories";
+import { profiles, type ProfilesI } from "../utils/data";
+import { getProfileById, getProfileByUser } from "../utils/getProfile";
+import { useParams } from "react-router";
+import { getPosts } from "../utils/getPosts";
 
 export const StoriesPage = () => {
+    const screenWidth = window.innerWidth;
+    const { userName, postId } = useParams();
+    const userId = getProfileByUser(userName!).id
+    const posts = getPosts(userId);
+    let nextPost, previousPost;
+    let previousStoriesCount = 0;
+    let nextStoriesCount = 0;
+    const sortedProfiles = profiles.sort((profilea, profileb) => profilea.order! - profileb.order!)
+    const invertedProfiles = sortedProfiles.toReversed();
+    const previousStories: Array<React.ReactElement> = [];
+
+    for (let i = 0; i < posts.length; i++) {
+        if (posts[i].id === Number(postId)) {
+            previousPost = posts[i - 1];
+            nextPost = posts[i + 1];
+        }
+    }
+
     return (
-        <main className="storiesView">
-            {/* <article className="miniStoriesList">
-                <section className="story">
-                    <div className="inside text-center text-white">
-                        <img className="profilePicture mx-auto" src="../public/images/tinho.jpg" alt="" />
-                        <h1>user name</h1>
-                        <p>0s</p>
-                    </div>
-                    <img className="storyImage brightness-75" src="../public/images/new planet, restart of all.png" alt="" />
-                </section>
-            </article> */}
+        <main className="bg-indigo-50">
+            <ul className="storiesView">
+                {
+                    invertedProfiles.map((profile, i) => {
+                        if (previousStoriesCount >= 2) return
+                        if (profile.order! >= getProfileById(userId).order!) {
+                            return
+                        }
+                        if (profile.order! < getProfileById(userId).order!) {
+                            previousStoriesCount++;
+                            if (screenWidth > 1620) {
+                                previousStories.push(<ProfileStories type='mini' profile={profile} />)
+                            }
+                            if (i >= invertedProfiles.length - 1 || previousStoriesCount >= 2) {
+                                return previousStories.toReversed().map(tes => tes)
+                            }
+                            return
+                        }
+                    })
+                }
 
-            <article className="miniStoriesList">
-                <section className="story">
-                    <div className="inside text-center text-white">
-                        <img className="profilePicture mx-auto" src="../public/images/tinho.jpg" alt="" />
-                        <h1>user name</h1>
-                        <p>0s</p>
-                    </div>
-                    <img className="storyImage brightness-75" src="../public/images/new planet, restart of all.png" alt="" />
-                </section>
-            </article>
+                {previousPost && <Link to={`/stories/${userName}/${previousPost?.id}`}><ArrowLeftCircle size='24' stroke="#222" /></Link>}
+                <ProfileStories />
+                {nextPost && <Link to={`/stories/${userName}/${nextPost?.id}`}><ArrowRightCircle size='24' stroke="#222" /></Link>}
 
-            <button className=""><ArrowLeftCircle size='24' stroke="#222" /></button>
-            <article className="storiesList">
-                <section className="progress">
-                    <div className="progressTick"></div>
-                    <div className="progressTick"></div>
-                    <div className="progressTick"></div>
-                </section>
-                <section className="profile">
-                    <div className="flex gap-2 items-center">
-                        <img className="profilePictureMini" src="../public/images/tinho.jpg" alt="" />
-                        <h1>User name</h1>
-                        <p>0s</p>
-                    </div>
-                    <button className="flex gap-2">
-                        <Play size={16} fill="#000" />
-                    </button>
-                </section>
-                <section className="story">
-                    <img className="storyImage" src="../public/images/new planet, restart of all.png" alt="" />
-                </section>
-            </article>
-            <button className=""><ArrowRightCircle size='24' stroke="#222" /></button>
-
-            <article className="miniStoriesList">
-                <section className="story">
-                    <div className="inside text-center text-white">
-                        <img className="profilePicture mx-auto" src="../public/images/tinho.jpg" alt="" />
-                        <h1>user name</h1>
-                        <p>0s</p>
-                    </div>
-                    <img className="storyImage brightness-75" src="../public/images/new planet, restart of all.png" alt="" />
-                </section>
-            </article>
-
-            {/* <article className="miniStoriesList">
-                <section className="story">
-                    <div className="inside text-center text-white">
-                        <img className="profilePicture mx-auto" src="../public/images/tinho.jpg" alt="" />
-                        <h1>user name</h1>
-                        <p>0s</p>
-                    </div>
-                    <img className="storyImage brightness-75" src="../public/images/new planet, restart of all.png" alt="" />
-                </section>
-            </article> */}
-
-            <Link className="absolute left-4 top-4" to={'/'}><ArrowBigLeft size={24} fill="#222" stroke="#222"/></Link>
+                {sortedProfiles.map((profile, i) => {
+                    if (nextStoriesCount >= 2) return
+                    if (profile.order! <= getProfileById(userId).order!) {
+                        return
+                    } else {
+                        nextStoriesCount++;
+                        return screenWidth > 1620 &&
+                            <ProfileStories type='mini' profile={profile} />
+                    }
+                })}
+            </ul>
+            <Link className="absolute left-4 top-4" to={'/'}><ArrowBigLeft size={24} fill="#222" stroke="#222" /></Link>
         </main>
     )
 }

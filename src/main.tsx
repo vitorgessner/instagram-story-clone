@@ -8,10 +8,10 @@ import { StoriesPage } from './pages/StoriesPage.tsx'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-    <Routes>
-      <Route index element={<MainPage />} />
-      <Route path='stories' element={<StoriesPage />} />
-    </Routes>
+      <Routes>
+        <Route index element={<MainPage />} />
+        <Route path='stories/:userName/:postId' element={<StoriesPage />} />
+      </Routes>
     </BrowserRouter>
-  </StrictMode>,
+  </StrictMode>
 )
