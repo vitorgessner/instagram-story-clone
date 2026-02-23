@@ -9,7 +9,7 @@ import {
   DialogClose,
 } from "../components/ui/dialog"
 import { Button } from "../components/ui/dialog"
-import { Stories } from "../components/Stories"
+import { NavStories } from "../components/NavStories"
 import Form from "../components/Form/Form"
 
 function MainPage() {
@@ -19,7 +19,7 @@ function MainPage() {
     <>
       <header className="header">
         <nav>
-          <Stories>
+          <NavStories>
             <li className="flex flex-col items-center -order-999">
               <Dialog>
                 <DialogTrigger className="trigger newStory" disabled={!isLoggedIn}>
@@ -44,7 +44,7 @@ function MainPage() {
               </Dialog>
               <h1>New</h1>
             </li>
-          </Stories>
+          </NavStories>
         </nav>
       </header>
       <main className="mainPage">

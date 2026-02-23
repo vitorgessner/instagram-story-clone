@@ -1,6 +1,6 @@
 import { ArrowLeftCircle, ArrowRightCircle, ArrowBigLeft } from "lucide-react"
 import { Link } from "react-router"
-import { ProfileStories } from "../components/ProfileStories";
+import { Story } from "../components/Story";
 import { profiles } from "../utils/data";
 import { getProfileById, getProfileByUser } from "../utils/getProfile";
 import { useParams } from "react-router";
@@ -37,10 +37,10 @@ export const StoriesPage = () => {
                         if (profile.order! < getProfileById(userId).order!) {
                             previousStoriesCount++;
                             if (screenWidth > 1100 && previousStoriesCount === 1) {
-                                previousStories.push(<ProfileStories type='mini' profile={profile} />)
+                                previousStories.push(<Story type='mini' profile={profile} />)
                             }
                             if (screenWidth > 1620 && previousStoriesCount === 2) {
-                                previousStories.push(<ProfileStories type='mini' profile={profile} />)
+                                previousStories.push(<Story type='mini' profile={profile} />)
                             }
                             if (i >= invertedProfiles.length - 1 || previousStoriesCount >= 2) {
                                 return previousStories.toReversed().map(tes => tes)
@@ -51,17 +51,17 @@ export const StoriesPage = () => {
                 }
 
                 {screenWidth > 500 && previousPost && <Link to={`/stories/${userName}/${previousPost?.id}`}><ArrowLeftCircle size='24' stroke="#222" /></Link>}
-                <ProfileStories />
+                <Story />
                 {screenWidth > 500 && nextPost && <Link to={`/stories/${userName}/${nextPost?.id}`}><ArrowRightCircle size='24' stroke="#222" /></Link>}
 
-                {sortedProfiles.map((profile, i) => {
+                {sortedProfiles.map((profile) => {
                     if (nextStoriesCount >= 2) return
                     if (profile.order! <= getProfileById(userId).order!) {
                         return
                     } else {
                         nextStoriesCount++;
-                        if (screenWidth > 1100 && nextStoriesCount === 1) return <ProfileStories type='mini' profile={profile} />
-                        if (screenWidth > 1620 && nextStoriesCount === 2) return <ProfileStories type='mini' profile={profile} />
+                        if (screenWidth > 1100 && nextStoriesCount === 1) return <Story type='mini' profile={profile} />
+                        if (screenWidth > 1620 && nextStoriesCount === 2) return <Story type='mini' profile={profile} />
                     }
                 })}
             </ul>

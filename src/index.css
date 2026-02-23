@@ -71,7 +71,7 @@
     @apply flex gap-1 pt-2 px-2 w-full bg-indigo-200
   }
 
-  .progressTick {
+  .progressTicks {
     @apply w-full h-0.5 flex gap-1
   }
 

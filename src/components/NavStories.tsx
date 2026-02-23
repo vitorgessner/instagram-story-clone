@@ -1,9 +1,9 @@
 import { Link } from 'react-router';
-import { profiles } from '../utils/data';
+import { profiles, type ProfilesI } from '../utils/data';
 import { getPosts } from '../utils/getPosts';
 import { getFirstUnseenPostId } from '../utils/getFirstUnseenPosts';
 
-export const Stories = ({ children }: { children: React.ReactNode }) => {
+export const NavStories = ({ children }: { children: React.ReactNode }) => {
     const scrollContainer = document.querySelector('.stories');
     scrollContainer?.addEventListener('wheel', (ev) => {
         ev.preventDefault();
@@ -12,13 +12,20 @@ export const Stories = ({ children }: { children: React.ReactNode }) => {
             behavior: 'smooth'
         })
     })
+
+    const setOrder = (profile: ProfilesI) => {
+        const seenPost = getPosts(profile.id).find(post => post.isSeen) ?? getPosts(profile.id).find(post => !post.isSeen);
+        const order = seenPost && Math.floor((new Date().getTime() - seenPost?.date) / 10000)
+        const profileOrder = order && getPosts(profile.id).find(post => post.isSeen) ? 9999 + order + profile.id : order && order + profile.id
+        return profileOrder;
+    }
+
     return (
         <div>
             <ul className="stories">
                 {children}
                 {profiles.map((profile) => {
-                    const order = Math.floor((new Date().getTime() - getPosts(profile.id).find(post => post.isSeen)?.date) / 10000)
-                    profile.order = getPosts(profile.id).find(post => post.isSeen) ? 9999 + order : Math.floor((new Date().getTime() - getPosts(profile.id).find(post => !post.isSeen)?.date) / 10000);
+                    profile.order = setOrder(profile)
                     return (
                         <li key={profile.id}
                             className={`flex flex-col items-center`}
@@ -27,7 +34,8 @@ export const Stories = ({ children }: { children: React.ReactNode }) => {
                                 <img className={`profilePicture ${getPosts(profile.id).find(post => !post.isSeen) ? 'notSeen' : ''}`} src={profile.pfpPath} alt={profile.userName} />
                             </Link>
                             <h1>{profile.userName}</h1>
-                        </li>)
+                        </li>
+                    )
                 })}
             </ul>
         </div>
