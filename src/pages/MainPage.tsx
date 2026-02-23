@@ -22,10 +22,8 @@ function MainPage() {
           <Stories>
             <li className="flex flex-col items-center -order-999">
               <Dialog>
-                <DialogTrigger className="underline hover:bg-linear-120 from-indigo-200 to-indigo-300 rounded-full size-16 flex justify-center">
-                  <button className="newStory" disabled={!isLoggedIn}>
-                    <Plus size={32} fill="#e5e7eb" />
-                  </button>
+                <DialogTrigger className="trigger newStory" disabled={!isLoggedIn}>
+                  <Plus size={32} fill="#e5e7eb" />
                 </DialogTrigger>
                 <DialogContent className="max-w-xs sm:max-w-sm min-h-100 min-w-150 flex flex-col">
                   <DialogHeader>

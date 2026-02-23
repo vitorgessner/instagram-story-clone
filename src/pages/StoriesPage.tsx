@@ -1,7 +1,7 @@
 import { ArrowLeftCircle, ArrowRightCircle, ArrowBigLeft } from "lucide-react"
 import { Link } from "react-router"
 import { ProfileStories } from "../components/ProfileStories";
-import { profiles, type ProfilesI } from "../utils/data";
+import { profiles } from "../utils/data";
 import { getProfileById, getProfileByUser } from "../utils/getProfile";
 import { useParams } from "react-router";
 import { getPosts } from "../utils/getPosts";
@@ -36,7 +36,10 @@ export const StoriesPage = () => {
                         }
                         if (profile.order! < getProfileById(userId).order!) {
                             previousStoriesCount++;
-                            if (screenWidth > 1620) {
+                            if (screenWidth > 1100 && previousStoriesCount === 1) {
+                                previousStories.push(<ProfileStories type='mini' profile={profile} />)
+                            }
+                            if (screenWidth > 1620 && previousStoriesCount === 2) {
                                 previousStories.push(<ProfileStories type='mini' profile={profile} />)
                             }
                             if (i >= invertedProfiles.length - 1 || previousStoriesCount >= 2) {
@@ -47,9 +50,9 @@ export const StoriesPage = () => {
                     })
                 }
 
-                {previousPost && <Link to={`/stories/${userName}/${previousPost?.id}`}><ArrowLeftCircle size='24' stroke="#222" /></Link>}
+                {screenWidth > 500 && previousPost && <Link to={`/stories/${userName}/${previousPost?.id}`}><ArrowLeftCircle size='24' stroke="#222" /></Link>}
                 <ProfileStories />
-                {nextPost && <Link to={`/stories/${userName}/${nextPost?.id}`}><ArrowRightCircle size='24' stroke="#222" /></Link>}
+                {screenWidth > 500 && nextPost && <Link to={`/stories/${userName}/${nextPost?.id}`}><ArrowRightCircle size='24' stroke="#222" /></Link>}
 
                 {sortedProfiles.map((profile, i) => {
                     if (nextStoriesCount >= 2) return
@@ -57,12 +60,12 @@ export const StoriesPage = () => {
                         return
                     } else {
                         nextStoriesCount++;
-                        return screenWidth > 1620 &&
-                            <ProfileStories type='mini' profile={profile} />
+                        if (screenWidth > 1100 && nextStoriesCount === 1) return <ProfileStories type='mini' profile={profile} />
+                        if (screenWidth > 1620 && nextStoriesCount === 2) return <ProfileStories type='mini' profile={profile} />
                     }
                 })}
             </ul>
-            <Link className="absolute left-4 top-4" to={'/'}><ArrowBigLeft size={24} fill="#222" stroke="#222" /></Link>
+            <Link className="absolute left-0 sm:left-4 top-4" to={'/'}><ArrowBigLeft size={24} fill="#222" stroke="#222" /></Link>
         </main>
     )
 }

@@ -4,14 +4,21 @@ import { getPosts } from '../utils/getPosts';
 import { getFirstUnseenPostId } from '../utils/getFirstUnseenPosts';
 
 export const Stories = ({ children }: { children: React.ReactNode }) => {
+    const scrollContainer = document.querySelector('.stories');
+    scrollContainer?.addEventListener('wheel', (ev) => {
+        ev.preventDefault();
+        scrollContainer.scrollTo({
+            left: scrollContainer.scrollLeft + ev.deltaY,
+            behavior: 'smooth'
+        })
+    })
     return (
         <div>
             <ul className="stories">
                 {children}
                 {profiles.map((profile) => {
                     const order = Math.floor((new Date().getTime() - getPosts(profile.id).find(post => post.isSeen)?.date) / 10000)
-                    profile.order = getPosts(profile.id).find(post => post.isSeen) ? 9999 + order : order;
-                    console.log(profile.userName + ': ' +profile.order)
+                    profile.order = getPosts(profile.id).find(post => post.isSeen) ? 9999 + order : Math.floor((new Date().getTime() - getPosts(profile.id).find(post => !post.isSeen)?.date) / 10000);
                     return (
                         <li key={profile.id}
                             className={`flex flex-col items-center`}
