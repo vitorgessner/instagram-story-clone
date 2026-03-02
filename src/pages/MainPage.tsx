@@ -16,8 +16,15 @@ import useProfileStore from "../store/profileStore"
 import useStoriesStore from "../store/storiesStore"
 
 function MainPage() {
-  const { formData: profilesData, clearForm : clearProfilesForm, loggedProfile, logoff, profiles, clearProfiles } = useProfileStore();
-  const { formData: storiesData, clearForm : clearStoriesForm, stories, clearStories } = useStoriesStore();
+  const { formData: profilesData, 
+    clearForm : clearProfilesForm, 
+    loggedProfile, 
+    logoff 
+  } = useProfileStore();
+  const { formData: storiesData, 
+    clearForm : clearStoriesForm 
+  } = useStoriesStore();
+
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isAddStoryOpen, setIsAddStoryOpen] = useState(false);
@@ -56,7 +63,7 @@ function MainPage() {
                 <DialogTrigger className="trigger newStory" disabled={!loggedProfile}>
                   <Plus size={32} fill="#e5e7eb" />
                 </DialogTrigger>
-                <DialogContent className="max-w-xs sm:max-w-sm min-h-100 min-w-150 flex flex-col">
+                <DialogContent className="max-w-sm sm:max-w-sm min-h-100 flex sm:min-w-150 flex-col">
                   <DialogHeader>
                     <DialogTitle>Post an image</DialogTitle>
                   </DialogHeader>
@@ -137,8 +144,6 @@ function MainPage() {
           <Button type='button' className="font-bold text-lg" variant='outline' onClick={() => logoff()}>Logoff</Button>
         </div>
         }
-        <button onClick={() => console.log(stories, profiles)}>see stories</button>
-        <button onClick={() => {clearProfiles(); clearStories()}}>delete all</button>
       </main>
     </>
   )

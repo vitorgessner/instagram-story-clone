@@ -5,16 +5,19 @@ import useProfilesStore from "../store/profileStore";
 import { useNavigate } from "react-router";
 
 export const ProgressTicks = () => {
-    const { getStories, getFirstSeenStory, getFirstUnseenStory } = useStoriesStore();
+    const { getStories, getFirstUnseenStory } = useStoriesStore();
     const { getProfileByUser, profiles } = useProfilesStore();
 
-    const { userName, postId } = useParams();
     const navigate = useNavigate();
-    const user = getProfileByUser(userName!);
-
-    const currentStories = getStories(user!.id);
-
     const localRef = useRef<Record<string, HTMLLIElement | null>>({});
+
+    const { userName, postId } = useParams();
+    if (!userName || !postId) throw new Error('No userName or post id in query search')
+
+    const user = getProfileByUser(userName);
+    if (!user) throw new Error('No user found');
+
+    const currentStories = getStories(user.id);
 
     const goToNext = useCallback(() => {
         if (!currentStories) return;
@@ -26,11 +29,11 @@ export const ProgressTicks = () => {
             const nextProfile = profiles[activeProfileIdx + 1];
 
             if (!nextProfile) return navigate('/')
-            return navigate(`/stories/${nextProfile.userName}/${getFirstUnseenStory(nextProfile.id)?.id ?? getFirstSeenStory(nextProfile.id)?.id}`)
+            return navigate(`/stories/${nextProfile.userName}/${getFirstUnseenStory(nextProfile.id)?.id}`)
         }
 
         navigate(`/stories/${userName}/${nextStory.id}`)
-    }, [currentStories, postId, profiles, userName, navigate, getFirstSeenStory, getFirstUnseenStory])
+    }, [currentStories, postId, profiles, userName, navigate, getFirstUnseenStory])
 
     useLayoutEffect(() => {
         let animation : Animation;
@@ -82,22 +85,6 @@ export const ProgressTicks = () => {
             animation.removeEventListener('finish', goToNext)
         }
     }, [postId, currentStories, goToNext])
-
-    // useLayoutEffect(() => {
-    //     if (!currentStories) return;
-
-    //     const currentIdx = currentStories.findIndex(story => story.id === Number(postId));
-    //     if (!currentIdx) return;
-
-    //     const nextStory = currentStories[currentIdx + 1];
-    //     if (!nextStory) return;
-
-    //     console.log(localRef.current[Number(postId)])
-    //     if (localRef.current[Number(postId)]?.getAnimations()[0].playState === 'finished') {
-    //         navigate(`/stories/${userName}/${nextStory.id}`)
-    //     }
-
-    // }, [postId, currentStories, navigate, userName])
 
     return (
         <ul className="progressTicks">

@@ -5,19 +5,21 @@ import type { StoriesI } from "../types/storiesTypes";
 import useProfilesStore from "../store/profileStore";
 
 export const StoryImage = () => {
-    const { stories } = useStoriesStore();
+    const { getStories } = useStoriesStore();
     const { getProfileByUser } = useProfilesStore();
-    const bg = document.querySelector('.storyImage.pb-14') && getPixelColor(document.querySelector('.storyImage.pb-14') as HTMLImageElement)
-    const { userName, postId } = useParams();
-    const user = userName && getProfileByUser(userName);
 
-    const currentStories: Array<StoriesI> = [];
-    
-        stories.map(story => {
-            if (user && story.userId === user.id) currentStories.push(story)
-        })
-    
-        const currentStory = currentStories.find(story => story.id === Number(postId))
+    const bg = document.querySelector('.storyImage.pb-14') && getPixelColor(document.querySelector('.storyImage.pb-14') as HTMLImageElement)
+
+    const { userName, postId } = useParams();
+    if (!userName || !postId) return;
+
+    const user = getProfileByUser(userName);
+    if (!user) return;
+
+    const currentStories: Array<StoriesI> | null = getStories(user.id);
+    if (!currentStories) return;
+
+    const currentStory = currentStories.find(story => story.id === Number(postId))
 
     return (
         <section style={currentStory && bg ? { backgroundColor: `rgba(${bg.red}, ${bg.green}, ${bg.blue}, ${bg.alpha})` } : { backgroundColor: '#oklch(87% 0.065 274.039)' }} className={currentStory ? `story` : "story bg-[#222]"}>

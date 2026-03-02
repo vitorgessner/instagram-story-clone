@@ -5,25 +5,25 @@ import type { StoriesI } from "../types/storiesTypes";
 import useProfilesStore from "../store/profileStore";
 
 export const StoriesProfile = () => {
-    const { stories } = useStoriesStore();
+    const { getStories } = useStoriesStore();
     const { getProfileByUser } = useProfilesStore();
 
     const { userName, postId } = useParams();
+    if (!userName || !postId) return;
 
-    const user = getProfileByUser(userName!);
-    const currentStories: Array<StoriesI> = [];
+    const user = getProfileByUser(userName);
+    if (!user) return;
 
-    stories.map(story => {
-        if (user && story.userId === user.id) currentStories.push(story)
-    })
+    const currentStories: Array<StoriesI> | null = getStories(user.id);
+    if (!currentStories) return;
 
     const currentStory = currentStories.find(story => story.id === Number(postId));
 
     return (
         <>
             <div className="flex gap-2 items-center">
-                <img className="profilePictureMini" src={user!.pfpPath!} alt="" />
-                <h1>{user && user.userName}</h1>
+                <img className="profilePictureMini" src={user.pfpPath} alt={user.userName} />
+                <h1>{user.userName}</h1>
                 {currentStory && <p>{getTimeAfterPost(currentStory.date)}</p>}
             </div>
         </>

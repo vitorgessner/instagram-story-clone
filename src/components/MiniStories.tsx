@@ -3,21 +3,19 @@ import type { ProfilesI } from "../utils/data"
 import useStoriesStore from "../store/storiesStore"
 
 export const MiniStories = ({profile} : {profile: ProfilesI | undefined}) => {
-    const { getStories, getFirstUnseenStory, getFirstSeenStory } = useStoriesStore();
+    const { getFirstUnseenStory, getStories } = useStoriesStore();
+    if (!profile) return;
+
+    const story = getFirstUnseenStory(profile.id);
+    if (!story) return;
+
     return (
-        (profile && getFirstUnseenStory(profile.id) ? <Link to={`/stories/${profile?.userName}/${profile && getFirstUnseenStory(profile.id)?.id}`}>
+        (<Link to={`/stories/${profile.userName}/${story.id}`}>
             <div className="inside text-center text-white">
-                <img className={`profilePicture mx-auto ${profile && getStories(profile.id)?.find(post => !post.isSeen) && 'notSeen'}`} src={profile?.pfpPath} alt="" />
-                <h1>{profile?.userName}</h1>
+                <img className={`profilePicture mx-auto ${getStories(profile.id)?.find(story => !story.isSeen) && 'notSeen'}`} src={profile.pfpPath} alt={profile.userName} />
+                <h1>{profile.userName}</h1>
             </div>
-            <img className="storyImage brightness-50" src={profile && getFirstUnseenStory(profile.id)?.imgPath} alt="" />
-        </Link> :
-        <Link to={`/stories/${profile?.userName}/${profile && getFirstSeenStory(profile.id)?.id}`}>
-        <div className="inside text-center text-white">
-            <img className={`profilePicture mx-auto ${profile && getStories(profile.id)?.find(post => !post.isSeen) && 'notSeen'}`} src={profile?.pfpPath} alt="" />
-            <h1>{profile?.userName}</h1>
-        </div>
-        <img className="storyImage brightness-50" src={profile && getFirstSeenStory(profile.id)?.imgPath} alt="" />
-    </Link>)
+            <img className="storyImage brightness-50" src={story.imgPath}/>
+        </Link>)
     )
 }

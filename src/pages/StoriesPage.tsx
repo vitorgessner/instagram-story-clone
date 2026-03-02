@@ -13,26 +13,12 @@ export const StoriesPage = () => {
 
     const [screenWidth, setScreenWidth] = useState<number>(window.innerWidth);
 
-    const { userName, postId } = useParams();
-
-    const user : ProfilesI | null = getProfileByUser(userName!)
-
-    const posts = user && getStories(user.id);
     let nextPost, previousPost;
     let previousStoriesCount = 0, nextStoriesCount = 0;
 
     const sortedProfiles = profiles.sort((profilea, profileb) => profilea.order! - profileb.order!)
     const invertedProfiles = sortedProfiles.toReversed();
     const previousStories: Array<React.ReactElement> = [];
-
-    if (posts){
-        for (let i = 0; i < posts.length; i++) {
-            if (posts[i].id === Number(postId)) {
-                previousPost = posts[i - 1];
-                nextPost = posts[i + 1];
-            }
-        }
-    }
 
     useEffect(() => {
         window.addEventListener('resize', () => {
@@ -50,17 +36,35 @@ export const StoriesPage = () => {
         }
     }, [])
 
+    const { userName, postId } = useParams();
+    if (!userName || !postId) return;
+
+    const user : ProfilesI | null = getProfileByUser(userName)
+    if (!user) return;
+
+    const posts = getStories(user.id);
+    if (!posts) return;
+
+    if (posts){
+        for (let i = 0; i < posts.length; i++) {
+            if (posts[i].id === Number(postId)) {
+                previousPost = posts[i - 1];
+                nextPost = posts[i + 1];
+            }
+        }
+    }
+
     return (
         <main className="bg-indigo-50">
             <ul className="storiesView">
                 {
                     invertedProfiles.map((profile, i) => {
                         if (previousStoriesCount >= 2) return
-                        if (user && user.order && profile.order! >= user.order) {
+                        if (user.order && profile.order! >= user.order) {
                             return
                         }
-                        if (!getStories(profile.id) || profile.id === getProfileByUser(userName!)?.id) return
-                        if (user && user.order && profile.order! < user.order) {
+                        if (profile.id === getProfileByUser(userName)?.id) return
+                        if (user.order && profile.order < user.order) {
                             previousStoriesCount++;
                             if (screenWidth > 1100 && previousStoriesCount === 1) {
                                 previousStories.push(<Story type='mini' profile={profile} />)
@@ -82,8 +86,8 @@ export const StoriesPage = () => {
 
                 {sortedProfiles.map((profile) => {
                     if (nextStoriesCount >= 2) return
-                    if (!getStories(profile.id) || profile.id === getProfileByUser(userName!)?.id) return
-                    if (user && user.order && profile.order! <= user.order!) {
+                    if (profile.id === getProfileByUser(userName)?.id) return
+                    if (user.order && profile.order <= user.order) {
                         return
                     } else {
                         nextStoriesCount++;

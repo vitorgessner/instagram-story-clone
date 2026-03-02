@@ -12,7 +12,7 @@ interface StoriesStore {
     setStoryToSeen: (id: number) => void
     getStories: (id: number) => StoriesI[] | null,
     getFirstUnseenStory: (id: number) => StoriesI | null,
-    getFirstSeenStory: (id: number) => StoriesI | null,
+    getLastSeenStory: (id: number) => StoriesI | null,
     clearStories: () => void
 }
 
@@ -84,15 +84,18 @@ const useStoriesStore = create<StoriesStore>()(persist((set, get) => ({
 
         const story = userStories.find(story => !story.isSeen);
         
-        if (!story) return null
+        if (!story) return userStories[0]
         return story
     },
 
-    getFirstSeenStory: (id) => {
+    getLastSeenStory: (id) => {
         const userStories = get().getStories(id);
-        if (!userStories) return null
+        if (!userStories) return null;
 
-        return userStories[0]
+        const story = userStories.findLast(story => story.isSeen);
+
+        if (!story) return null;
+        return story;
     },
 
     clearStories: () => {

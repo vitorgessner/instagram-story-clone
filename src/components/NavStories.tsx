@@ -6,7 +6,7 @@ import type { ProfilesI } from '../types/profileTypes';
 
 export const NavStories = ({ children }: { children: React.ReactNode }) => {
     const { profiles } = useProfilesStore();
-    const { getStories, getFirstUnseenStory, getFirstSeenStory } = useStoriesStore();
+    const { getStories, getFirstUnseenStory, getLastSeenStory } = useStoriesStore();
 
     const scrollRef = useRef<HTMLUListElement>(null);
 
@@ -19,10 +19,10 @@ export const NavStories = ({ children }: { children: React.ReactNode }) => {
     }
 
     const setOrder = (profile: ProfilesI) => {
-        const seenPost = getFirstUnseenStory(profile.id) ?? getFirstSeenStory(profile.id);
-        if (!seenPost) return undefined
+        const seenPost = getStories(profile.id)?.find(story => !story.isSeen) ?? getLastSeenStory(profile.id);
+        if (!seenPost) return 99999999
         const order = Math.floor((new Date().getTime() - seenPost?.date) / 10000)
-        const profileOrder = order && getStories(profile.id)?.find(post => post.isSeen) ? 9999 + order : order && order
+        const profileOrder = getStories(profile.id)?.findLast(post => post.isSeen) ? 9999 + order : order
         return profileOrder;
     }
 
@@ -37,13 +37,10 @@ export const NavStories = ({ children }: { children: React.ReactNode }) => {
                         <li key={profile.id}
                             className={`flex flex-col items-center`}
                             style={{ order: profile.order }}>
-                            {getFirstUnseenStory(profile.id) ?
+                            {getFirstUnseenStory(profile.id) &&
                             <Link to={`/stories/${profile.userName}/${getFirstUnseenStory(profile.id)?.id}`}>
                                 <img className={`profilePicture ${getStories(profile.id)?.find(post => !post.isSeen) ? 'notSeen' : ''}`} src={profile.pfpPath} alt={profile.userName} />
-                            </Link> :
-                            <Link to={`/stories/${profile.userName}/${getFirstSeenStory(profile.id)?.id}`}>
-                            <img className={`profilePicture ${getStories(profile.id)?.find(post => !post.isSeen) ? 'notSeen' : ''}`} src={profile.pfpPath} alt={profile.userName} />
-                        </Link>}
+                            </Link>}
                             <h1>{profile.userName}</h1>
                         </li>
                     )} else {

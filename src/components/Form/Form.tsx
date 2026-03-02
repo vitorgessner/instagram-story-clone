@@ -6,7 +6,13 @@ import useProfilesStore from "../../store/profileStore"
 import useStoriesStore from "../../store/storiesStore"
 import { useNavigate } from "react-router"
 
-const Form = ({ children, id, setModal }: {children: React.ReactNode, id: string, setModal?: React.Dispatch<React.SetStateAction<boolean>>}) => {
+interface FormI {
+    children: React.ReactNode, 
+    id: string, 
+    setModal?: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+const Form = ({ children, id, setModal }: FormI) => {
     const { addProfile, login, loggedProfile } = useProfilesStore()
     const { addToStories } = useStoriesStore()
 
@@ -18,20 +24,19 @@ const Form = ({ children, id, setModal }: {children: React.ReactNode, id: string
         if (id === 'login') return login();
         if (loggedProfile) {
             const newStory = await addToStories(loggedProfile.id);
+            if (!newStory) return
+
             if (setModal) setModal(false);
 
-            if (newStory) navigate(`/stories/${loggedProfile.userName}/${newStory.id}`)
+            navigate(`/stories/${loggedProfile.userName}/${newStory.id}`)
         }
     }
     }>{children}</form>
 }
 
 Form.Label = Label
-
 Form.Text = Text
-
 Form.Password = Password
-
 Form.File = File
 
 export default Form

@@ -12,7 +12,9 @@ interface FileProps {
 export const File = ({ id }: FileProps) => {
     const {setFormData : setProfilesData} = useProfilesStore();
     const {setFormData : setStoriesData } = useStoriesStore();
+
     const fileNameRef = useRef<HTMLSpanElement>(null);
+    
     const handleChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
         if (fileNameRef.current) {
             if (ev.target.files && ev.target.files.length > 0) {
