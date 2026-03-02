@@ -1,17 +1,20 @@
 import { useParams } from "react-router";
-import { stories, type StoriesI } from "../utils/data";
 import { getPixelColor } from "../utils/getPixelColor"
-import { getProfileByUser } from "../utils/getProfile";
+import useStoriesStore from "../store/storiesStore";
+import type { StoriesI } from "../types/storiesTypes";
+import useProfilesStore from "../store/profileStore";
 
 export const StoryImage = () => {
+    const { stories } = useStoriesStore();
+    const { getProfileByUser } = useProfilesStore();
     const bg = document.querySelector('.storyImage.pb-14') && getPixelColor(document.querySelector('.storyImage.pb-14') as HTMLImageElement)
     const { userName, postId } = useParams();
-    const userId = getProfileByUser(userName!).id;
+    const user = userName && getProfileByUser(userName);
 
     const currentStories: Array<StoriesI> = [];
     
         stories.map(story => {
-            if (story.userId === userId) currentStories.push(story)
+            if (user && story.userId === user.id) currentStories.push(story)
         })
     
         const currentStory = currentStories.find(story => story.id === Number(postId))

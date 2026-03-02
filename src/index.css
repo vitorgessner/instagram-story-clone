@@ -126,10 +126,10 @@
     @apply bg-zinc-400 w-full h-0.5 relative
   }
 
-  .progressBar.active {
+  /* .progressBar.active {
     padding-left: 100%;
     animation: slideIn 15s linear forwards;
-  }
+  } */
 
   .storyNotFound {
     @apply flex items-center h-full pb-18 justify-center text-white font-bold
@@ -140,14 +140,14 @@
   }
 }
 
-@keyframes slideIn {
+/* @keyframes slideIn {
   from {
     padding-left: 4px;
   }
   to {
     padding-left: 100%;
   }
-}
+} */
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);

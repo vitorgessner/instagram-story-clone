@@ -22,9 +22,9 @@ export interface StoriesI {
 }
 
 export const stories: Array<StoriesI> = [
-    { id: 1, userId: 1, isSeen: false, date: new Date('2026-02-22T22:00:00').getTime(), imgPath: '../../public/images/new planet, restart of all.png'},
-    { id: 2, userId: 1, isSeen: false, date: new Date('2026-02-19').getTime(), imgPath: '../../public/images/vampiros.webp'},
-    { id: 11, userId: 1, isSeen: false, date: new Date('2026-02-19').getTime(), imgPath: '../../public/images/vampiros.webp'},
+    { id: 1, userId: 1, isSeen: false, date: new Date('2026-02-24T07:00:00').getTime(), imgPath: '../../public/images/new planet, restart of all.png'},
+    { id: 2, userId: 1, isSeen: false, date: new Date('2026-02-24T07:00:00').getTime(), imgPath: '../../public/images/vampiros.webp'},
+    { id: 11, userId: 1, isSeen: false, date: new Date('2026-02-24').getTime(), imgPath: '../../public/images/vampiros.webp'},
     { id: 3, userId: 2, isSeen: false, date: new Date().getTime(), imgPath: '../../public/images/hq720.jpg'},
     { id: 4, userId: 2, isSeen: false, date: new Date().getTime(), imgPath: '../../public/images/kid a.jpg'},
     { id: 5, userId: 3, isSeen: true, date: new Date().getTime(), imgPath: '../../public/images/prantos.jpg'},

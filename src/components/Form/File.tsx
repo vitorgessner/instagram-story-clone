@@ -1,40 +1,53 @@
-import type { ChangeEvent } from "react";
+import type React from "react";
+import { useRef } from "react";
+import useProfilesStore from "../../store/profileStore";
+import useStoriesStore from "../../store/storiesStore";
+import type { RegisterFormI } from "../../types/profileTypes";
+import type { AddStoryFormI } from "../../types/storiesTypes";
 
-export const File = () => {
-    const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
-        const fileNameDisplay = document.getElementById('file-name-display');
+interface FileProps {
+    id: Extract<keyof RegisterFormI, "pfp"> | keyof AddStoryFormI
+}
 
-        if (fileNameDisplay) {
+export const File = ({ id }: FileProps) => {
+    const {setFormData : setProfilesData} = useProfilesStore();
+    const {setFormData : setStoriesData } = useStoriesStore();
+    const fileNameRef = useRef<HTMLSpanElement>(null);
+    const handleChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+        if (fileNameRef.current) {
             if (ev.target.files && ev.target.files.length > 0) {
-                fileNameDisplay.textContent = ev.target.files[0].name;
+                if (id === 'pfp') {
+                    setProfilesData({ [id]: ev.target.files[0]})
+                } else {
+                    setStoriesData({ [id]: ev.target.files[0]})
+                }
+                fileNameRef.current.textContent = ev.target.files[0].name;
             } else {
-                fileNameDisplay.textContent = 'No file selected';
+                setProfilesData({});
+                setStoriesData({});
+                fileNameRef.current.textContent = 'No file selected';
             }
         }
     }
 
-    const target = document.getElementById('target');
-
-    target?.addEventListener('dragover', (ev) => {
+    const handleDrop = (ev: React.DragEvent<HTMLDivElement>) => {
         ev.preventDefault();
-    });
-    target?.addEventListener('drop', (ev) => {
-        ev.preventDefault();
+        if (ev.dataTransfer && ev.dataTransfer.files.length > 0) {
+            if (id === 'pfp') {
+                setProfilesData({ [id]: ev.dataTransfer.files[0] })
+            } else {
+                setStoriesData({ [id]: ev.dataTransfer.files[0] })
+            }
+        }
         const data = ev.dataTransfer?.files
-        if (target.lastChild && data) target.lastChild.textContent = data[0].name
-    })
-
-    // const handleDrop = (ev : DragEvent) => {
-    //     ev.preventDefault();
-    //     const data = ev.dataTransfer?.files
-    //     if (target?.lastChild && data) target.lastChild.textContent = data[0].name
-    // }
+        if (fileNameRef.current && data) fileNameRef.current.textContent = data[0].name
+    }
 
     return (
-        <div id="target" onDragOver={e => e.preventDefault()} /*onDrop={handleDrop} state no textContent */ className="min-w-full min-h-full grow border-2 border-zinc-400 py-3">
+        <div id="target" onDragOver={e => e.preventDefault()} onDrop={handleDrop} className="min-w-full min-h-full grow border-2 border-zinc-400 py-3">
             <input id='file-upload' onChange={handleChange} className="min-w-full min-h-full h-full hidden" placeholder="drop or click to select an image" type="file" formEncType="multipart/form-data" />
             <label htmlFor="file-upload" className="bg-zinc-200 py-2.5 px-4 cursor-pointer rounded-sm ml-1">Choose or drop an image in the box</label>
-            <span id="file-name-display" className="m-2.5 block">No file selected</span>
+            <span id="file-name-display" ref={fileNameRef} className="m-2.5 block">No file selected</span>
         </div>
     )
 }

@@ -1,41 +1,60 @@
 import { Link } from 'react-router';
-import { profiles, type ProfilesI } from '../utils/data';
-import { getPosts } from '../utils/getPosts';
-import { getFirstUnseenPostId } from '../utils/getFirstUnseenPosts';
+import { useRef } from 'react';
+import useProfilesStore from '../store/profileStore';
+import useStoriesStore from '../store/storiesStore';
+import type { ProfilesI } from '../types/profileTypes';
 
 export const NavStories = ({ children }: { children: React.ReactNode }) => {
-    const scrollContainer = document.querySelector('.stories');
-    scrollContainer?.addEventListener('wheel', (ev) => {
+    const { profiles } = useProfilesStore();
+    const { getStories, getFirstUnseenStory, getFirstSeenStory } = useStoriesStore();
+
+    const scrollRef = useRef<HTMLUListElement>(null);
+
+    const handleWheel = (ev : React.WheelEvent) => {
         ev.preventDefault();
-        scrollContainer.scrollTo({
-            left: scrollContainer.scrollLeft + ev.deltaY,
+        scrollRef.current?.scrollTo({
+            left: scrollRef.current.scrollLeft + ev.deltaY,
             behavior: 'smooth'
         })
-    })
+    }
 
     const setOrder = (profile: ProfilesI) => {
-        const seenPost = getPosts(profile.id).find(post => post.isSeen) ?? getPosts(profile.id).find(post => !post.isSeen);
-        const order = seenPost && Math.floor((new Date().getTime() - seenPost?.date) / 10000)
-        const profileOrder = order && getPosts(profile.id).find(post => post.isSeen) ? 9999 + order + profile.id : order && order + profile.id
+        const seenPost = getFirstUnseenStory(profile.id) ?? getFirstSeenStory(profile.id);
+        if (!seenPost) return undefined
+        const order = Math.floor((new Date().getTime() - seenPost?.date) / 10000)
+        const profileOrder = order && getStories(profile.id)?.find(post => post.isSeen) ? 9999 + order : order && order
         return profileOrder;
     }
 
     return (
         <div>
-            <ul className="stories">
+            <ul className="stories" ref={scrollRef} onWheel={handleWheel}>
                 {children}
                 {profiles.map((profile) => {
                     profile.order = setOrder(profile)
+                    if (getStories(profile.id)) {
                     return (
                         <li key={profile.id}
                             className={`flex flex-col items-center`}
                             style={{ order: profile.order }}>
-                            <Link to={`/stories/${profile.userName}/${getFirstUnseenPostId(profile)}`}>
-                                <img className={`profilePicture ${getPosts(profile.id).find(post => !post.isSeen) ? 'notSeen' : ''}`} src={profile.pfpPath} alt={profile.userName} />
-                            </Link>
+                            {getFirstUnseenStory(profile.id) ?
+                            <Link to={`/stories/${profile.userName}/${getFirstUnseenStory(profile.id)?.id}`}>
+                                <img className={`profilePicture ${getStories(profile.id)?.find(post => !post.isSeen) ? 'notSeen' : ''}`} src={profile.pfpPath} alt={profile.userName} />
+                            </Link> :
+                            <Link to={`/stories/${profile.userName}/${getFirstSeenStory(profile.id)?.id}`}>
+                            <img className={`profilePicture ${getStories(profile.id)?.find(post => !post.isSeen) ? 'notSeen' : ''}`} src={profile.pfpPath} alt={profile.userName} />
+                        </Link>}
                             <h1>{profile.userName}</h1>
                         </li>
-                    )
+                    )} else {
+                        return (<li key={profile.id}
+                            className={`flex flex-col items-center`}
+                            style={{ order: 999999}}
+                            >
+                                <img className={`profilePicture`} src={profile.pfpPath} alt={profile.userName} />
+                            <h1>{profile.userName}</h1>
+                        </li>)
+                    }
                 })}
             </ul>
         </div>
