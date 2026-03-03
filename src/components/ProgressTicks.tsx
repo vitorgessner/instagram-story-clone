@@ -28,12 +28,13 @@ export const ProgressTicks = () => {
             const activeProfileIdx = profiles.findIndex(profile => profile.userName === userName);
             const nextProfile = profiles[activeProfileIdx + 1];
 
-            if (!nextProfile) return navigate('/')
+            if (!nextProfile) return navigate('/');
+            if (!getStories(nextProfile.id)) return navigate('/');
             return navigate(`/stories/${nextProfile.userName}/${getFirstUnseenStory(nextProfile.id)?.id}`)
         }
 
         navigate(`/stories/${userName}/${nextStory.id}`)
-    }, [currentStories, postId, profiles, userName, navigate, getFirstUnseenStory])
+    }, [currentStories, postId, profiles, userName, navigate, getFirstUnseenStory, getStories])
 
     useLayoutEffect(() => {
         let animation : Animation;
