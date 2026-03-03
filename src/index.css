@@ -59,8 +59,12 @@
     @apply max-w-80 sm:max-w-120 min-w-80 sm:min-w-120 border-2 border-zinc-700 h-full flex flex-col bg-indigo-100 relative max-h-220 
   }
 
+  .miniStoriesLink {
+    @apply min-h-80 h-sm:min-h-90 h-md:min-h-100 h-lg:min-h-110 flex flex-col max-w-60 min-w-60
+  }
+
   .miniStoriesList {
-    @apply max-w-60 min-w-60 border-2 border-zinc-700 h-[50%] h-sm:h-[60%] h-lg:h-[50%] flex flex-col bg-indigo-100 relative min-h-75.25 max-h-115 cursor-pointer
+    @apply border-2 border-zinc-700 flex flex-col bg-indigo-100 relative cursor-pointer grow
   }
 
   .profile {
@@ -76,7 +80,7 @@
   }
 
   .story {
-    @apply flex flex-1 overflow-hidden items-center justify-center
+    @apply flex flex-1 overflow-hidden items-center justify-center h-full
   }
 
   .storiesView {
@@ -99,7 +103,7 @@
 
 @layer utilities {
   .profilePicture {
-    @apply max-h-16 min-h-16 max-w-16 min-w-16 rounded-full border-2 bg-linear-120 from-zinc-200 to-zinc-800 p-1 object-cover border-none
+    @apply max-h-16 min-h-16 max-w-16 min-w-16 rounded-full border-2 bg-linear-120 from-zinc-200 to-zinc-800 p-1 object-cover border-none h-full
   }
 
   .profilePicture.notSeen {
@@ -115,7 +119,7 @@
   }
 
   .inside {
-    @apply absolute z-10 left-20 top-24 h-sm:top-32 h-md:top-42
+    @apply absolute w-full h-full
   }
 
   .progressBar {

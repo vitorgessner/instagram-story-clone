@@ -23,7 +23,7 @@ export const StoryImage = () => {
 
     return (
         <section style={currentStory && bg ? { backgroundColor: `rgba(${bg.red}, ${bg.green}, ${bg.blue}, ${bg.alpha})` } : { backgroundColor: '#oklch(87% 0.065 274.039)' }} className={currentStory ? `story` : "story bg-[#222]"}>
-            {currentStory ? <img className="storyImage pb-14" data-current src={currentStory.imgPath} alt="" />
+            {currentStory ? <img className="storyImage pb-14" src={currentStory.imgPath} alt="" />
                 : <div className="storyNotFound">Story não encontrado</div>}
         </section>
     )

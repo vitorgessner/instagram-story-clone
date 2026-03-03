@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { ProgressTicks } from "./ProgressTicks";
 import { StoriesProfile } from "./StoriesProfile";
 import { MiniStories } from "./MiniStories";
@@ -8,12 +8,11 @@ import useStoriesStore from "../store/storiesStore";
 import type { ProfilesI } from "../types/profileTypes";
 
 interface StoryI {
-    type?: string,
     profile?: ProfilesI
 }
 
-export const Story = ({ type, profile }: StoryI) => {
-    const { setStoryToSeen } = useStoriesStore();
+export const Story = ({ profile }: StoryI) => {
+    const { setStoryToSeen, getFirstUnseenStory } = useStoriesStore();
 
     const { postId } = useParams();
 
@@ -22,7 +21,7 @@ export const Story = ({ type, profile }: StoryI) => {
     }, [setStoryToSeen, postId])
 
     return (
-        !type ? (<li className="storiesList">
+        !profile ? (<li className="storiesList">
             <section className="progress">
                 <ProgressTicks />
             </section>
@@ -31,11 +30,12 @@ export const Story = ({ type, profile }: StoryI) => {
             </section>
             <StoryImage />
         </li>) : (
-            <li className="miniStoriesList">
-                <section className="story">
-                    <MiniStories profile={profile} />
-                </section>
-            </li>
+            <Link to={`/stories/${profile.userName}/${getFirstUnseenStory(profile.id)?.id}`}
+            className="miniStoriesLink">
+                <li className="miniStoriesList">
+                        <MiniStories profile={profile} />
+                </li>
+            </Link>
         )
     )
 }

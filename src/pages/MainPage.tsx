@@ -16,14 +16,11 @@ import useProfileStore from "../store/profileStore"
 import useStoriesStore from "../store/storiesStore"
 
 function MainPage() {
-  const { formData: profilesData, 
-    clearForm : clearProfilesForm, 
+  const { clearForm : clearProfilesForm, 
     loggedProfile, 
     logoff 
   } = useProfileStore();
-  const { formData: storiesData, 
-    clearForm : clearStoriesForm 
-  } = useStoriesStore();
+  const { clearForm : clearStoriesForm } = useStoriesStore();
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
@@ -74,7 +71,7 @@ function MainPage() {
                         <DialogClose asChild>
                           <Button type="button" variant='destructive'>Cancel</Button>
                         </DialogClose>
-                        <Button type="submit" className="disabled:bg-zinc-300 disabled:cursor-none disabled:pointer-events-none" variant='outline' disabled={!storiesData.storyImage}>Post</Button>
+                        <Button type="submit" className="disabled:bg-zinc-300 disabled:cursor-none disabled:pointer-events-none" variant='outline' >Post</Button>
                       </div>
                     </DialogFooter>
                   </Form>
@@ -133,7 +130,7 @@ function MainPage() {
                     <DialogClose asChild>
                       <Button type="button" variant='destructive'>Close</Button>
                     </DialogClose>
-                    <Button type="submit" variant='outline' disabled={!profilesData.pfp}>Create</Button>
+                    <Button type="submit" variant='outline'>Create</Button>
                   </div>
                 </DialogFooter>
               </Form>

@@ -5,6 +5,7 @@ import { File } from "./File"
 import useProfilesStore from "../../store/profileStore"
 import useStoriesStore from "../../store/storiesStore"
 import { useNavigate } from "react-router"
+import { useForm, FormProvider } from "react-hook-form"
 
 interface FormI {
     children: React.ReactNode, 
@@ -15,11 +16,12 @@ interface FormI {
 const Form = ({ children, id, setModal }: FormI) => {
     const { addProfile, login, loggedProfile } = useProfilesStore()
     const { addToStories } = useStoriesStore()
+    const methods = useForm<{ loginPass: string, password: string, loginName: string, userName: string }>()
 
     const navigate = useNavigate();
 
-    return <form className="flex flex-col min-h-full self-stretch grow" id={id} name={id} method="POST" onSubmit={async (e) => {
-        e.preventDefault()
+    return <FormProvider {...methods}>
+    <form className="flex flex-col min-h-full self-stretch grow" id={id} name={id} onSubmit={methods.handleSubmit(async () => {
         if (id === 'register') return addProfile();
         if (id === 'login') return login();
         if (loggedProfile) {
@@ -30,8 +32,9 @@ const Form = ({ children, id, setModal }: FormI) => {
 
             navigate(`/stories/${loggedProfile.userName}/${newStory.id}`)
         }
-    }
+    })
     }>{children}</form>
+    </FormProvider>
 }
 
 Form.Label = Label

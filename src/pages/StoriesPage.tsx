@@ -64,13 +64,14 @@ export const StoriesPage = () => {
                             return
                         }
                         if (profile.id === getProfileByUser(userName)?.id) return
+                        if (!getStories(profile.id)) return
                         if (user.order && profile.order < user.order) {
                             previousStoriesCount++;
                             if (screenWidth > 1100 && previousStoriesCount === 1) {
-                                previousStories.push(<Story type='mini' profile={profile} />)
+                                previousStories.push(<Story profile={profile} />)
                             }
                             if (screenWidth > 1620 && previousStoriesCount === 2) {
-                                previousStories.push(<Story type='mini' profile={profile} />)
+                                previousStories.push(<Story profile={profile} />)
                             }
                             if (i >= invertedProfiles.length - 1 || previousStoriesCount >= 2) {
                                 return previousStories.toReversed().map(stories => stories)
@@ -80,19 +81,20 @@ export const StoriesPage = () => {
                     })
                 }
 
-                {screenWidth > 500 && previousPost && <Link to={`/stories/${userName}/${previousPost?.id}`}><ArrowLeftCircle size='24' stroke="#222" /></Link>}
+                <Link className={!previousPost ? 'pointer-events-none opacity-50' : ''} to={`/stories/${userName}/${previousPost?.id}`}><ArrowLeftCircle size='24' stroke="#222" /></Link>
                 <Story />
-                {screenWidth > 500 && nextPost && <Link to={`/stories/${userName}/${nextPost?.id}`}><ArrowRightCircle size='24' stroke="#222" /></Link>}
+                <Link className={!nextPost ? 'pointer-events-none opacity-50' : ''} to={`/stories/${userName}/${nextPost?.id}`}><ArrowRightCircle size='24' stroke="#222" /></Link>
 
                 {sortedProfiles.map((profile) => {
                     if (nextStoriesCount >= 2) return
                     if (profile.id === getProfileByUser(userName)?.id) return
+                    if (!getStories(profile.id)) return
                     if (user.order && profile.order <= user.order) {
                         return
                     } else {
                         nextStoriesCount++;
-                        if (screenWidth > 1100 && nextStoriesCount === 1) return <Story type='mini' profile={profile} />
-                        if (screenWidth > 1620 && nextStoriesCount === 2) return <Story type='mini' profile={profile} />
+                        if (screenWidth > 1100 && nextStoriesCount === 1) return <Story profile={profile} />
+                        if (screenWidth > 1620 && nextStoriesCount === 2) return <Story profile={profile} />
                     }
                 })}
             </ul>
