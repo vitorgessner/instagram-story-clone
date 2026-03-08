@@ -10,7 +10,7 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <Routes>
         <Route index element={<MainPage />} />
-        <Route path='stories/:userName/:postId' element={<StoriesPage />} />
+        <Route path='stories/:username/:postId' element={<StoriesPage />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>

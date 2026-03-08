@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import bcrypt from 'bcryptjs';
 import type { LoginFormI, RegisterFormI, ProfilesI } from '../types/profileTypes';
 import fileToBase64 from '../utils/fileToBase64';
+import { ValidationError } from '../utils/ValidationError';
 
 interface ProfilesStore {
   profiles: ProfilesI[]
@@ -12,8 +13,8 @@ interface ProfilesStore {
   setFormData: (data: Partial<RegisterFormI> & Partial<LoginFormI>) => void
   clearForm: () => void
 
-  addProfile: () => void
-  login: () => void
+  addProfile: () => Promise<void>
+  login: () => Promise<null | undefined>
   logoff: () => void
   clearProfiles: () => void,
 
@@ -35,17 +36,20 @@ const useProfilesStore = create<ProfilesStore>()(persist((set, get) => ({
     set({ formData: {} }),
 
   addProfile: async () => {
+    try {
     const data = get().formData
 
-    if (!data.userName || !data.pfp || !data.password) return
+    if (!data.username || !data.image || !data.password) return
 
-    const base64Image = await fileToBase64(data.pfp)
+    if (data.image.type.split('/')[0] !== 'image') throw new ValidationError({ message: 'Only images are suportted'})
+
+    const base64Image = await fileToBase64(data.image)
 
     const hashedPassword = await bcrypt.hash(data.password, 10)
 
     const newProfile: ProfilesI = {
       id: Date.now(),
-      userName: data.userName,
+      username: data.username,
       password: hashedPassword,
       pfpPath: base64Image,
       order: 0
@@ -56,6 +60,11 @@ const useProfilesStore = create<ProfilesStore>()(persist((set, get) => ({
       loggedProfile: newProfile,
       formData: {}
     }))
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      throw error;
+    }
+  }
   },
 
   logoff: () => {
@@ -65,23 +74,31 @@ const useProfilesStore = create<ProfilesStore>()(persist((set, get) => ({
   },
 
   login: async () => {
-    const data = get().formData
-    const profiles = get().profiles
+    try {
+      const data = get().formData
+      const profiles = get().profiles
 
-    if (!data.loginName || !data.loginPass) return
+      if (!data.username || !data.password) return null;
 
-    const profile = profiles.find(profile => profile.userName === data.loginName);
-    if (!profile) return null
+      const profile = profiles.find(profile => profile.username === data.username);
+      if (!profile) throw new ValidationError({ message: 'User or password incorrect' })
 
-    if (await bcrypt.compare(data.loginPass, profile.password)) {
+      if (await bcrypt.compare(data.password, profile.password)) {
+        set(() => ({
+          loggedProfile: profile
+        }))
+      } else {
+        throw new ValidationError({ message: 'User or password incorrect' })
+      }
+
       set(() => ({
-        loggedProfile: profile
+        formData: {}
       }))
+    } catch (error) {
+      if (error instanceof ValidationError){
+        throw error
+      }
     }
-
-    set(() => ({
-      formData: {}
-    }))
   },
 
   getProfileById: (id) => {
@@ -97,7 +114,7 @@ const useProfilesStore = create<ProfilesStore>()(persist((set, get) => ({
     const profiles = get().profiles;
     if (!profiles) return null
 
-    const profile = profiles.find(profile => profile.userName === user);
+    const profile = profiles.find(profile => profile.username === user);
     if (!profile) return null
     return profile
   },

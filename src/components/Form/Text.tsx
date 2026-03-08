@@ -1,25 +1,24 @@
 import useProfileStore from "../../store/profileStore"
-import type { RegisterFormI, LoginFormI } from "../../types/profileTypes"
 import { useFormContext } from "react-hook-form"
 
-type TextProps = {
-    id: Extract<keyof RegisterFormI, "userName"> | Extract<keyof LoginFormI, 'loginName'>
+type TextFormValues = {
+    username: string
 }
 
-export const Text = ({ id }: TextProps) => {
+export const Text = () => {
     const { setFormData } = useProfileStore()
-    const { register, formState: { errors } } = useFormContext<{ loginName: string, userName: string }>();
+        const { register, formState: { errors } } = useFormContext<TextFormValues>();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({ [id]: e.target.value })
+        setFormData({ 'username': e.target.value })
     }
 
     return <div className="inline">
-        <input id={id} type='text' {...register(id, {
-            required: 'Name is required',
-            minLength: { message: 'Name must have at least 4 characteres', value: 4}
-        })} onChange={handleChange} />
-        {errors.loginName && <p className="text-red-600">Error: {errors.loginName.message}</p>}
-        {errors.userName && <p className="text-red-600">Error: {errors.userName.message}</p>}
+        <input type='text' autoComplete="off" {...register('username', {
+            required: 'Username is required',
+            minLength: { message: 'Username must have at least 4 characters', value: 4},
+            onChange: handleChange
+        })} />
+        {errors.username && <p className="text-red-600">{errors.username.message}</p>}
     </div>
 }

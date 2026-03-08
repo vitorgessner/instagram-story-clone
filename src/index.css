@@ -56,7 +56,7 @@
   }
 
   .storiesList {
-    @apply max-w-80 sm:max-w-120 min-w-80 sm:min-w-120 border-2 border-zinc-700 h-full flex flex-col bg-indigo-100 relative max-h-220 
+    @apply max-w-80 sm:max-w-120 min-w-80 sm:min-w-120 border-2 border-zinc-700 h-full flex flex-col bg-indigo-100 relative max-h-150 h-sm:max-h-210
   }
 
   .miniStoriesLink {
@@ -130,11 +130,6 @@
     @apply bg-zinc-400 w-full h-0.5 relative
   }
 
-  /* .progressBar.active {
-    padding-left: 100%;
-    animation: slideIn 15s linear forwards;
-  } */
-
   .storyNotFound {
     @apply flex items-center h-full pb-18 justify-center text-white font-bold
   }
@@ -144,14 +139,6 @@
   }
 }
 
-/* @keyframes slideIn {
-  from {
-    padding-left: 4px;
-  }
-  to {
-    padding-left: 100%;
-  }
-} */
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);

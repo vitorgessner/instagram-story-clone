@@ -2,25 +2,28 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { AddStoryFormI, StoriesI } from '../types/storiesTypes';
 import fileToBase64 from '../utils/fileToBase64';
+import { ValidationError } from '../utils/ValidationError';
+import { getPixelColor } from '../utils/getPixelColor';
 
 interface StoriesStore {
     stories: StoriesI[],
     formData: Partial<AddStoryFormI>,
     setFormData: (data: Partial<AddStoryFormI>) => void,
     clearForm: () => void,
-    addToStories: (id: number) => Promise<StoriesI | null>,
+    addToStories: (id: number) => Promise<StoriesI | null | undefined>,
     setStoryToSeen: (id: number) => void
     getStories: (id: number) => StoriesI[] | null,
     getFirstUnseenStory: (id: number) => StoriesI | null,
     getLastSeenStory: (id: number) => StoriesI | null,
-    clearStories: () => void
+    clearStories: () => void,
+    removeFromStories: (id: number) => void,
 }
 
 const useStoriesStore = create<StoriesStore>()(persist((set, get) => ({
     stories: [],
     formData: {},
 
-    setFormData: (data) => {
+    setFormData: async (data) => {
         set((state) => ({
             formData: { ...state.formData, ...data }
         }))
@@ -31,26 +34,48 @@ const useStoriesStore = create<StoriesStore>()(persist((set, get) => ({
     },
 
     addToStories: async (id: number) => {
+        try {
         const data = get().formData;
 
-        if (!data.storyImage) return null
+        if (!data.image) return null;
 
-        const base64Image = await fileToBase64(data.storyImage)
+        if (data.image.type.split('/')[0] !== 'image') throw new ValidationError({ message: 'Only images are supported' });
 
-        const newStory: StoriesI = {
-            id: Date.now(),
-            date: Date.now(),
-            imgPath: base64Image,
-            isSeen: false,
-            userId: id
+        const base64Image = await fileToBase64(data.image)
+        const image = new Image();
+        image.src = base64Image;
+        return new Promise(resolve => {
+        image.onload = () => {
+            const color = getPixelColor(image)
+    
+            const newStory: StoriesI = {
+                id: Date.now(),
+                date: Date.now(),
+                imgPath: base64Image,
+                dominantColor: color,
+                isSeen: false,
+                userId: id
+            }
+    
+            set((state) => ({
+                stories: [...state.stories, newStory],
+                formData: {}
+            }))
+    
+            resolve(newStory);
         }
+    })
+    } catch (error) {
+        if (error instanceof ValidationError) {
+            throw error;
+        }
+    }
+    },
 
+    removeFromStories: (id) => {
         set((state) => ({
-            stories: [...state.stories, newStory],
-            formData: {}
+            stories: [...state.stories.filter(story => story.id !== id)]
         }))
-
-        return newStory;
     },
 
     setStoryToSeen: (id) => {

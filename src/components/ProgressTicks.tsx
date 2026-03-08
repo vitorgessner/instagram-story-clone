@@ -11,10 +11,10 @@ export const ProgressTicks = () => {
     const navigate = useNavigate();
     const localRef = useRef<Record<string, HTMLLIElement | null>>({});
 
-    const { userName, postId } = useParams();
-    if (!userName || !postId) throw new Error('No userName or post id in query search')
+    const { username, postId } = useParams();
+    if (!username || !postId) throw new Error('No username or post id in query search')
 
-    const user = getProfileByUser(userName);
+    const user = getProfileByUser(username);
     if (!user) throw new Error('No user found');
 
     const currentStories = getStories(user.id);
@@ -25,16 +25,16 @@ export const ProgressTicks = () => {
 
         const nextStory = currentStories[activeIndex + 1]
         if (!nextStory) {
-            const activeProfileIdx = profiles.findIndex(profile => profile.userName === userName);
+            const activeProfileIdx = profiles.findIndex(profile => profile.username === username);
             const nextProfile = profiles[activeProfileIdx + 1];
 
             if (!nextProfile) return navigate('/');
             if (!getStories(nextProfile.id)) return navigate('/');
-            return navigate(`/stories/${nextProfile.userName}/${getFirstUnseenStory(nextProfile.id)?.id}`)
+            return navigate(`/stories/${nextProfile.username}/${getFirstUnseenStory(nextProfile.id)?.id}`)
         }
 
-        navigate(`/stories/${userName}/${nextStory.id}`)
-    }, [currentStories, postId, profiles, userName, navigate, getFirstUnseenStory, getStories])
+        navigate(`/stories/${username}/${nextStory.id}`)
+    }, [currentStories, postId, profiles, username, navigate, getFirstUnseenStory, getStories])
 
     useLayoutEffect(() => {
         let animation : Animation;
@@ -90,7 +90,7 @@ export const ProgressTicks = () => {
     return (
         <ul className="progressTicks">
             {currentStories?.map((story) => {
-                return <div className="progressLine">
+                return <div key={story.id} className="progressLine">
                     <li key={story.id} className="progressBar" ref={(el) => { localRef.current[Number(story.id)] = el }}></li>
                 </div>
             })}

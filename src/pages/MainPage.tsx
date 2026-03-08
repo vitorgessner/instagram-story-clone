@@ -65,7 +65,7 @@ function MainPage() {
                     <DialogTitle>Post an image</DialogTitle>
                   </DialogHeader>
                   <Form id="post" setModal={setIsAddStoryOpen}>
-                    <Form.File id="storyImage" />
+                    <Form.File />
                     <DialogFooter>
                       <div className="flex justify-end gap-2 mt-2">
                         <DialogClose asChild>
@@ -92,10 +92,10 @@ function MainPage() {
               </DialogHeader>
               <Form id="login">
                 <Form.Label>
-                  Name: <Form.Text id="loginName" />
+                  Name: <Form.Text />
                 </Form.Label>
                 <Form.Label>
-                  Password: <Form.Password id="loginPass" />
+                  Password: <Form.Password />
                 </Form.Label>
                 <DialogFooter>
                   <div className="flex justify-end gap-2 mt-2">
@@ -117,13 +117,13 @@ function MainPage() {
               </DialogHeader>
               <Form id="register">
                 <Form.Label>
-                  Name: <Form.Text id="userName" />
+                  Name: <Form.Text />
                 </Form.Label>
                 <Form.Label>
-                  Password: <Form.Password id="password" />
+                  Password: <Form.Password />
                 </Form.Label>
                 <Form.Label>
-                  <div className="w-full text-left mt-3">Profile Picture:</div> <Form.File id="pfp" />
+                  <div className="w-full text-left mt-3">Profile Picture:</div> <Form.File />
                 </Form.Label>
                 <DialogFooter>
                   <div className="flex justify-end gap-2 mt-8">

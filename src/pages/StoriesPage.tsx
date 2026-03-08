@@ -36,10 +36,10 @@ export const StoriesPage = () => {
         }
     }, [])
 
-    const { userName, postId } = useParams();
-    if (!userName || !postId) return;
+    const { username, postId } = useParams();
+    if (!username || !postId) return;
 
-    const user : ProfilesI | null = getProfileByUser(userName)
+    const user : ProfilesI | null = getProfileByUser(username)
     if (!user) return;
 
     const posts = getStories(user.id);
@@ -63,15 +63,15 @@ export const StoriesPage = () => {
                         if (user.order && profile.order! >= user.order) {
                             return
                         }
-                        if (profile.id === getProfileByUser(userName)?.id) return
+                        if (profile.id === getProfileByUser(username)?.id) return
                         if (!getStories(profile.id)) return
                         if (user.order && profile.order < user.order) {
                             previousStoriesCount++;
                             if (screenWidth > 1100 && previousStoriesCount === 1) {
-                                previousStories.push(<Story profile={profile} />)
+                                previousStories.push(<Story key={profile.id} profile={profile} />)
                             }
                             if (screenWidth > 1620 && previousStoriesCount === 2) {
-                                previousStories.push(<Story profile={profile} />)
+                                previousStories.push(<Story key={profile.id} profile={profile} />)
                             }
                             if (i >= invertedProfiles.length - 1 || previousStoriesCount >= 2) {
                                 return previousStories.toReversed().map(stories => stories)
@@ -81,20 +81,20 @@ export const StoriesPage = () => {
                     })
                 }
 
-                <Link className={!previousPost ? 'pointer-events-none opacity-50' : ''} to={`/stories/${userName}/${previousPost?.id}`}><ArrowLeftCircle size='24' stroke="#222" /></Link>
-                <Story />
-                <Link className={!nextPost ? 'pointer-events-none opacity-50' : ''} to={`/stories/${userName}/${nextPost?.id}`}><ArrowRightCircle size='24' stroke="#222" /></Link>
+                <Link className={!previousPost ? 'pointer-events-none opacity-50' : ''} to={`/stories/${username}/${previousPost?.id}`}><ArrowLeftCircle size='24' stroke="#222" /></Link>
+                <Story key={user.id}/>
+                <Link className={!nextPost ? 'pointer-events-none opacity-50' : ''} to={`/stories/${username}/${nextPost?.id}`}><ArrowRightCircle size='24' stroke="#222" /></Link>
 
                 {sortedProfiles.map((profile) => {
                     if (nextStoriesCount >= 2) return
-                    if (profile.id === getProfileByUser(userName)?.id) return
+                    if (profile.id === getProfileByUser(username)?.id) return
                     if (!getStories(profile.id)) return
                     if (user.order && profile.order <= user.order) {
                         return
                     } else {
                         nextStoriesCount++;
-                        if (screenWidth > 1100 && nextStoriesCount === 1) return <Story profile={profile} />
-                        if (screenWidth > 1620 && nextStoriesCount === 2) return <Story profile={profile} />
+                        if (screenWidth > 1100 && nextStoriesCount === 1) return <Story key={profile.id} profile={profile} />
+                        if (screenWidth > 1620 && nextStoriesCount === 2) return <Story key={profile.id} profile={profile} />
                     }
                 })}
             </ul>

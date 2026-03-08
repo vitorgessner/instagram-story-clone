@@ -30,7 +30,7 @@ export const Story = ({ profile }: StoryI) => {
             </section>
             <StoryImage />
         </li>) : (
-            <Link to={`/stories/${profile.userName}/${getFirstUnseenStory(profile.id)?.id}`}
+            <Link to={`/stories/${profile.username}/${getFirstUnseenStory(profile.id)?.id}`}
             className="miniStoriesLink">
                 <li className="miniStoriesList">
                         <MiniStories profile={profile} />
