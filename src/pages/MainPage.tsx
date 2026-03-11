@@ -10,43 +10,83 @@ import {
 } from "../components/ui/dialog"
 import { Button } from "../components/ui/dialog"
 import { NavStories } from "../components/NavStories"
-import Form from "../components/Form/Form"
+import Form, { type FormValues } from "../components/Form/Form"
 import { useState } from "react"
 import useProfileStore from "../store/profileStore"
 import useStoriesStore from "../store/storiesStore"
+import { ValidationError } from "../utils/ValidationError"
+import { useNavigate } from "react-router"
+import type { UseFormReturn } from "react-hook-form"
+import type { LoginFormI, RegisterFormI } from "../types/profileTypes"
 
 function MainPage() {
-  const { clearForm : clearProfilesForm, 
-    loggedProfile, 
-    logoff 
+  const {
+    loggedProfile,
+    logoff,
+    login,
+    addProfile,
   } = useProfileStore();
-  const { clearForm : clearStoriesForm } = useStoriesStore();
+  const { addToStories } = useStoriesStore();
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isAddStoryOpen, setIsAddStoryOpen] = useState(false);
 
+  const navigate = useNavigate();
+
   const handleLoginOpenChange = (isOpen: boolean) => {
     setIsLoginOpen(isOpen)
-
-    if (!isOpen) {
-      clearProfilesForm()
-    }
   }
 
   const handleRegisterOpenChange = (isOpen: boolean) => {
     setIsRegisterOpen(isOpen)
-
-    if (!isOpen) {
-      clearProfilesForm()
-    }
   }
 
   const handleAddStoryOpenChange = (isOpen: boolean) => {
     setIsAddStoryOpen(isOpen)
+  }
 
-    if (!isOpen) {
-      clearStoriesForm()
+  const handleStory = async (methods: UseFormReturn<FormValues, unknown, FormValues>, data: FormValues) => {
+    try {
+      if (!loggedProfile) return;
+      const newStory = await addToStories(loggedProfile.id, data);
+      if (!newStory) return null;
+
+      setIsAddStoryOpen(false);
+
+      await navigate(`/stories/${loggedProfile.username}/${newStory.id}`)
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        return methods.setError('image', error)
+      }
+      return console.error('Unexpected error: ' + error)
+    }
+  }
+
+  const handleLogin = async (methods: UseFormReturn<FormValues, unknown, FormValues>, data: FormValues) => {
+    try {
+      if (!data.username || !data.password) throw new Error('Invalid data');
+      const loginData : LoginFormI = {username: data.username, password: data.password}
+      const logged = await login(loginData);
+      if (!logged) return null;
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        return methods.setError('password', error)
+      }
+      return console.error('Unexpected error: ' + error)
+    }
+  }
+
+  const handleRegister = async (methods: UseFormReturn<FormValues, unknown, FormValues>, data: FormValues) => {
+    try {
+      if (!data.username || !data.password || !data.image) throw new Error("Invalid data")
+      const registerData : RegisterFormI = {username: data.username, password: data.password, image: data.image}
+      await addProfile(registerData);
+    } catch(error) {
+      if (error instanceof ValidationError) {
+        return methods.setError('image', error);
+      }
+      return console.error('Unexpected error: ' + error)
     }
   }
 
@@ -64,7 +104,7 @@ function MainPage() {
                   <DialogHeader>
                     <DialogTitle>Post an image</DialogTitle>
                   </DialogHeader>
-                  <Form id="post" setModal={setIsAddStoryOpen}>
+                  <Form onSubmit={handleStory}>
                     <Form.File />
                     <DialogFooter>
                       <div className="flex justify-end gap-2 mt-2">
@@ -90,7 +130,7 @@ function MainPage() {
               <DialogHeader>
                 <DialogTitle>Login to your account</DialogTitle>
               </DialogHeader>
-              <Form id="login">
+              <Form onSubmit={handleLogin}>
                 <Form.Label>
                   Name: <Form.Text />
                 </Form.Label>
@@ -115,7 +155,7 @@ function MainPage() {
               <DialogHeader>
                 <DialogTitle>Create an account</DialogTitle>
               </DialogHeader>
-              <Form id="register">
+              <Form onSubmit={handleRegister}>
                 <Form.Label>
                   Name: <Form.Text />
                 </Form.Label>

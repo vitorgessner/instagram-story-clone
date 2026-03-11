@@ -1,13 +1,14 @@
 import { Link } from 'react-router';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import useProfilesStore from '../store/profileStore';
 import useStoriesStore from '../store/storiesStore';
-import type { ProfilesI } from '../types/profileTypes';
 import { getTimeAfterPost } from '../utils/getTimeAfterPost';
+import useOrderMap from '../hooks/useOrderMap';
 
 export const NavStories = ({ children }: { children: React.ReactNode }) => {
-    const { profiles, loggedProfile } = useProfilesStore();
-    const { getStories, getFirstUnseenStory, getLastSeenStory, removeFromStories } = useStoriesStore();
+    const { profiles } = useProfilesStore();
+    const { getStories, getFirstUnseenStory, removeFromStories, stories } = useStoriesStore();
+    const orderMap = useOrderMap();
 
     const scrollRef = useRef<HTMLUListElement>(null);
 
@@ -19,34 +20,26 @@ export const NavStories = ({ children }: { children: React.ReactNode }) => {
         })
     }
 
-    const setOrder = (profile: ProfilesI) => {
-        const seenPost = getStories(profile.id)?.find(story => !story.isSeen) ?? getLastSeenStory(profile.id);
-        if (!seenPost) return 99999999
-        const order = Math.floor((new Date().getTime() - seenPost?.date) / 10000)
-        const profileOrder = getStories(profile.id)?.findLast(post => post.isSeen) ? 9999 + order : order
-
-        return profileOrder;
-    }
+    useEffect(() => {
+        stories.map(story => {
+            if (getTimeAfterPost(story.id).split('h')) {
+                if (Number(getTimeAfterPost(story.id).split('h')[0]) >= 24) removeFromStories(story.id)
+            }
+        })
+    }, [stories, removeFromStories])
 
     return (
         <div>
             <ul className="stories" ref={scrollRef} onWheel={handleWheel}>
                 {children}
                 {profiles.map((profile) => {
-                    profile.order = setOrder(profile)
-                    if (profile.id === loggedProfile?.id) profile.order = -99
                     if (getStories(profile.id)) {
-                        const stories = getStories(profile.id);
-                        if (!stories) return null
-                        stories.map(story => {
-                            if (getTimeAfterPost(story.id).split('h')) {
-                                if (Number(getTimeAfterPost(story.id).split('h')[0]) >= 24) removeFromStories(story.id)
-                            }
-                        })
+                        const profileStories = getStories(profile.id);
+                        if (!profileStories) return null
                     return (
                         <li key={profile.id}
                             className={`flex flex-col items-center`}
-                            style={{ order: profile.order }}>
+                            style={{ order: orderMap.get(profile.id) }}>
                             {getFirstUnseenStory(profile.id) &&
                             <Link to={`/stories/${profile.username}/${getFirstUnseenStory(profile.id)?.id}`}>
                                 <img className={`profilePicture ${stories?.find(post => !post.isSeen) ? 'notSeen' : ''}`} src={profile.pfpPath} alt={profile.username} />

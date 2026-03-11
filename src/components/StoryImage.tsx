@@ -20,8 +20,6 @@ export const StoryImage = () => {
     const currentStory = currentStories.find(story => story.id === Number(postId));
     if (!currentStory) return;
 
-    console.log(currentStory.dominantColor)
-
     return (
         <section style={currentStory.dominantColor && { backgroundColor: `rgba(${currentStory.dominantColor.red},${currentStory.dominantColor.green},${currentStory.dominantColor.blue},${currentStory.dominantColor.alpha})` }} 
         className={currentStory ? `story` : "story bg-[#222]"}>

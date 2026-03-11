@@ -9,12 +9,8 @@ interface ProfilesStore {
   profiles: ProfilesI[]
   loggedProfile: ProfilesI | null
 
-  formData: Partial<RegisterFormI> & Partial<LoginFormI>
-  setFormData: (data: Partial<RegisterFormI> & Partial<LoginFormI>) => void
-  clearForm: () => void
-
-  addProfile: () => Promise<void>
-  login: () => Promise<null | undefined>
+  addProfile: (data: RegisterFormI) => Promise<void>
+  login: (data: LoginFormI) => Promise<ProfilesI | null | undefined>
   logoff: () => void
   clearProfiles: () => void,
 
@@ -25,46 +21,35 @@ interface ProfilesStore {
 const useProfilesStore = create<ProfilesStore>()(persist((set, get) => ({
   profiles: [],
   loggedProfile: null,
-  formData: {},
 
-  setFormData: (data) =>
-    set((state) => ({
-      formData: { ...state.formData, ...data }
-    })),
-
-  clearForm: () =>
-    set({ formData: {} }),
-
-  addProfile: async () => {
+  addProfile: async (data) => {
     try {
-    const data = get().formData
 
-    if (!data.username || !data.image || !data.password) return
+      if (!data.username || !data.image || !data.password) return
 
-    if (data.image.type.split('/')[0] !== 'image') throw new ValidationError({ message: 'Only images are suportted'})
+      if (data.image.type.split('/')[0] !== 'image') throw new ValidationError({ message: 'Only images are suportted' })
 
-    const base64Image = await fileToBase64(data.image)
+      const base64Image = await fileToBase64(data.image)
 
-    const hashedPassword = await bcrypt.hash(data.password, 10)
+      const hashedPassword = await bcrypt.hash(data.password, 10)
 
-    const newProfile: ProfilesI = {
-      id: Date.now(),
-      username: data.username,
-      password: hashedPassword,
-      pfpPath: base64Image,
-      order: 0
+      const newProfile: ProfilesI = {
+        id: Date.now(),
+        username: data.username,
+        password: hashedPassword,
+        pfpPath: base64Image,
+      }
+
+      set((state) => ({
+        profiles: [...state.profiles, newProfile],
+        loggedProfile: newProfile,
+        formData: {}
+      }))
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        throw error;
+      }
     }
-
-    set((state) => ({
-      profiles: [...state.profiles, newProfile],
-      loggedProfile: newProfile,
-      formData: {}
-    }))
-  } catch (error) {
-    if (error instanceof ValidationError) {
-      throw error;
-    }
-  }
   },
 
   logoff: () => {
@@ -73,9 +58,8 @@ const useProfilesStore = create<ProfilesStore>()(persist((set, get) => ({
     }))
   },
 
-  login: async () => {
+  login: async (data) => {
     try {
-      const data = get().formData
       const profiles = get().profiles
 
       if (!data.username || !data.password) return null;
@@ -87,15 +71,13 @@ const useProfilesStore = create<ProfilesStore>()(persist((set, get) => ({
         set(() => ({
           loggedProfile: profile
         }))
+
+        return profile
       } else {
         throw new ValidationError({ message: 'User or password incorrect' })
       }
-
-      set(() => ({
-        formData: {}
-      }))
     } catch (error) {
-      if (error instanceof ValidationError){
+      if (error instanceof ValidationError) {
         throw error
       }
     }

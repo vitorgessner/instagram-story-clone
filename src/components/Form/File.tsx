@@ -1,7 +1,7 @@
 import type React from "react";
 import { useState } from "react";
-import useProfilesStore from "../../store/profileStore";
-import useStoriesStore from "../../store/storiesStore";
+// import useProfilesStore from "../../store/profileStore";
+// import useStoriesStore from "../../store/storiesStore";
 import { useFormContext } from "react-hook-form";
 
 type FileFormValues = {
@@ -9,8 +9,8 @@ type FileFormValues = {
 }
 
 export const File = () => {
-    const { setFormData: setProfilesData } = useProfilesStore();
-    const { setFormData: setStoriesData } = useStoriesStore();
+    // const { setFormData: setProfilesData } = useProfilesStore();
+    // const { setFormData: setStoriesData } = useStoriesStore();
 
     const [fileName, setFileName] = useState<string>('No file selected');
 
@@ -18,27 +18,17 @@ export const File = () => {
 
     const handleChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
         if (ev.target.files && ev.target.files.length > 0) {
-            setProfilesData({ image: ev.target.files[0] })
-            setStoriesData({ image: ev.target.files[0] })
             setFileName(ev.target.files[0].name);
         } else {
-            setProfilesData({});
-            setStoriesData({});
             setFileName('No file selected');
         }
     }
 
     const handleDrop = (ev: React.DragEvent<HTMLDivElement>) => {
         ev.preventDefault();
-        if (ev.dataTransfer && ev.dataTransfer.files.length > 0) {
-            setProfilesData({ image: ev.dataTransfer.files[0] })
-            setStoriesData({ image: ev.dataTransfer.files[0] })
-        }
         const data = ev.dataTransfer?.files
         if (data) setFileName(data[0].name);
     }
-
-    console.log(errors)
 
     return (
         <div>

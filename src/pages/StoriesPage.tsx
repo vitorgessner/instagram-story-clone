@@ -4,99 +4,58 @@ import { Story } from "../components/Story";
 import { useParams } from "react-router";
 import { useEffect, useState } from "react";
 import useProfilesStore from "../store/profileStore";
-import useStoriesStore from "../store/storiesStore";
 import type { ProfilesI } from "../types/profileTypes";
+import useStoryNavigation from "../hooks/useStoryNavigation";
 
 export const StoriesPage = () => {
-    const {profiles, getProfileByUser} = useProfilesStore();
-    const { getStories } = useStoriesStore();
+    const { getProfileByUser } = useProfilesStore();
+
+    const { username, postId } = useParams();
+
+    const user: ProfilesI | null = getProfileByUser(username!)
+
+    const { previousStories, nextStories, previousPost, nextPost } = useStoryNavigation(username, postId);
 
     const [screenWidth, setScreenWidth] = useState<number>(window.innerWidth);
 
-    let nextPost, previousPost;
-    let previousStoriesCount = 0, nextStoriesCount = 0;
-
-    const sortedProfiles = profiles.sort((profilea, profileb) => profilea.order! - profileb.order!)
-    const invertedProfiles = sortedProfiles.toReversed();
-    const previousStories: Array<React.ReactElement> = [];
+    const isWideScreen = screenWidth > 1100;
+    const isExtraWideScreen = screenWidth > 1620;
 
     useEffect(() => {
-        window.addEventListener('resize', () => {
+        const handleResize = () => {
             if (window.innerWidth < 1100) setScreenWidth(501)
             if (window.innerWidth >= 1100 && window.innerWidth < 1620) setScreenWidth(1101)
             if (window.innerWidth >= 1620) setScreenWidth(1621)
-        })
+        }
+        window.addEventListener('resize', handleResize)
 
         return () => {
-            window.removeEventListener('resize', () => {
-                if (window.innerWidth < 1100) setScreenWidth(501)
-                if (window.innerWidth >= 1100 && window.innerWidth < 1620) setScreenWidth(1101)
-                if (window.innerWidth >= 1620) setScreenWidth(1621)
-            })
+            window.removeEventListener('resize', handleResize)
         }
     }, [])
-
-    const { username, postId } = useParams();
-    if (!username || !postId) return;
-
-    const user : ProfilesI | null = getProfileByUser(username)
-    if (!user) return;
-
-    const posts = getStories(user.id);
-    if (!posts) return;
-
-    if (posts){
-        for (let i = 0; i < posts.length; i++) {
-            if (posts[i].id === Number(postId)) {
-                previousPost = posts[i - 1];
-                nextPost = posts[i + 1];
-            }
-        }
-    }
 
     return (
         <main className="bg-indigo-50">
             <ul className="storiesView">
                 {
-                    invertedProfiles.map((profile, i) => {
-                        if (previousStoriesCount >= 2) return
-                        if (user.order && profile.order! >= user.order) {
-                            return
-                        }
-                        if (profile.id === getProfileByUser(username)?.id) return
-                        if (!getStories(profile.id)) return
-                        if (user.order && profile.order < user.order) {
-                            previousStoriesCount++;
-                            if (screenWidth > 1100 && previousStoriesCount === 1) {
-                                previousStories.push(<Story key={profile.id} profile={profile} />)
-                            }
-                            if (screenWidth > 1620 && previousStoriesCount === 2) {
-                                previousStories.push(<Story key={profile.id} profile={profile} />)
-                            }
-                            if (i >= invertedProfiles.length - 1 || previousStoriesCount >= 2) {
-                                return previousStories.toReversed().map(stories => stories)
-                            }
-                            return
-                        }
+                    
+                    previousStories.toReversed().map((profile, i) => {
+                        if (isWideScreen && i === 1) return <Story key={profile?.id} profile={profile} />
+                        if (isExtraWideScreen && i === 0) return <Story key={profile?.id} profile={profile} />
                     })
                 }
 
                 <Link className={!previousPost ? 'pointer-events-none opacity-50' : ''} to={`/stories/${username}/${previousPost?.id}`}><ArrowLeftCircle size='24' stroke="#222" /></Link>
-                <Story key={user.id}/>
+                <Story key={user!.id} />
                 <Link className={!nextPost ? 'pointer-events-none opacity-50' : ''} to={`/stories/${username}/${nextPost?.id}`}><ArrowRightCircle size='24' stroke="#222" /></Link>
 
-                {sortedProfiles.map((profile) => {
-                    if (nextStoriesCount >= 2) return
-                    if (profile.id === getProfileByUser(username)?.id) return
-                    if (!getStories(profile.id)) return
-                    if (user.order && profile.order <= user.order) {
-                        return
-                    } else {
-                        nextStoriesCount++;
-                        if (screenWidth > 1100 && nextStoriesCount === 1) return <Story key={profile.id} profile={profile} />
-                        if (screenWidth > 1620 && nextStoriesCount === 2) return <Story key={profile.id} profile={profile} />
-                    }
-                })}
+                {
+                    nextStories.map((profile, i) => {
+                        if (i >= 2) return null
+                        if (isWideScreen && i === 0) return <Story key={profile?.id} profile={profile} />
+                        if (isExtraWideScreen && i === 1) return <Story key={profile?.id} profile={profile} />
+                    })
+                }
             </ul>
             <Link className="absolute left-0 sm:left-4 top-4" to={'/'}><ArrowBigLeft size={24} fill="#222" stroke="#222" /></Link>
         </main>

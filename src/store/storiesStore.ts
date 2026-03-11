@@ -7,10 +7,7 @@ import { getPixelColor } from '../utils/getPixelColor';
 
 interface StoriesStore {
     stories: StoriesI[],
-    formData: Partial<AddStoryFormI>,
-    setFormData: (data: Partial<AddStoryFormI>) => void,
-    clearForm: () => void,
-    addToStories: (id: number) => Promise<StoriesI | null | undefined>,
+    addToStories: (id: number, data: Partial<AddStoryFormI>) => Promise<StoriesI | null | undefined>,
     setStoryToSeen: (id: number) => void
     getStories: (id: number) => StoriesI[] | null,
     getFirstUnseenStory: (id: number) => StoriesI | null,
@@ -21,55 +18,43 @@ interface StoriesStore {
 
 const useStoriesStore = create<StoriesStore>()(persist((set, get) => ({
     stories: [],
-    formData: {},
 
-    setFormData: async (data) => {
-        set((state) => ({
-            formData: { ...state.formData, ...data }
-        }))
-    },
-
-    clearForm: () => {
-        set(() => ({ formData: {} }))
-    },
-
-    addToStories: async (id: number) => {
+    addToStories: async (id, data) => {
         try {
-        const data = get().formData;
 
-        if (!data.image) return null;
+            if (!data.image) return null;
 
-        if (data.image.type.split('/')[0] !== 'image') throw new ValidationError({ message: 'Only images are supported' });
+            if (data.image.type.split('/')[0] !== 'image') throw new ValidationError({ message: 'Only images are supported' });
 
-        const base64Image = await fileToBase64(data.image)
-        const image = new Image();
-        image.src = base64Image;
-        return new Promise(resolve => {
-        image.onload = () => {
-            const color = getPixelColor(image)
-    
-            const newStory: StoriesI = {
-                id: Date.now(),
-                date: Date.now(),
-                imgPath: base64Image,
-                dominantColor: color,
-                isSeen: false,
-                userId: id
+            const base64Image = await fileToBase64(data.image)
+            const image = new Image();
+            image.src = base64Image;
+            return new Promise(resolve => {
+                image.onload = () => {
+                    const color = getPixelColor(image)
+
+                    const newStory: StoriesI = {
+                        id: Date.now(),
+                        date: Date.now(),
+                        imgPath: base64Image,
+                        dominantColor: color,
+                        isSeen: false,
+                        userId: id
+                    }
+
+                    set((state) => ({
+                        stories: [...state.stories, newStory],
+                        formData: {}
+                    }))
+
+                    resolve(newStory);
+                }
+            })
+        } catch (error) {
+            if (error instanceof ValidationError) {
+                throw error;
             }
-    
-            set((state) => ({
-                stories: [...state.stories, newStory],
-                formData: {}
-            }))
-    
-            resolve(newStory);
         }
-    })
-    } catch (error) {
-        if (error instanceof ValidationError) {
-            throw error;
-        }
-    }
     },
 
     removeFromStories: (id) => {
@@ -92,11 +77,7 @@ const useStoriesStore = create<StoriesStore>()(persist((set, get) => ({
 
         if (!stories) return null
 
-        const userStories: StoriesI[] = [];
-
-        stories.map(story => {
-            if (story.userId === id) userStories.push(story)
-        })
+        const userStories: StoriesI[] = stories.filter(story => story.userId === id);
 
         if (userStories.length <= 0) return null
 
@@ -108,7 +89,7 @@ const useStoriesStore = create<StoriesStore>()(persist((set, get) => ({
         if (!userStories) return null
 
         const story = userStories.find(story => !story.isSeen);
-        
+
         if (!story) return userStories[0]
         return story
     },

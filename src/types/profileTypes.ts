@@ -3,7 +3,6 @@ export interface ProfilesI {
   username: string,
   password: string,
   pfpPath: string,
-  order: number
 }
 
 export interface RegisterFormI {
